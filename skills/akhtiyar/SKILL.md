@@ -1,6 +1,6 @@
 ---
 name: akhtiyar
-description: Engineering leadership dashboard — runs all checks in one command: Sentry bugs, Jira priorities, security audit, architecture compliance, prod commits, branch activity, prod changelog, and Claude updates.
+description: Engineering leadership dashboard — runs all checks in one command: Sentry bugs, Jira priorities, security audit, architecture compliance, prod changelog, branch activity, and Claude updates.
 argument-hint: "[today|weekly|fortnightly|monthly]"
 ---
 
@@ -48,16 +48,13 @@ This dashboard aggregates all individual checks into one view. Each section runs
 ## 4. Architecture Compliance
 {findings}
 
-## 5. Production Commits (Last 5)
-{commit table}
+## 5. Production Changelog (Last 5 + time period breakdown)
+{commit table + day/week/fortnight/month summary}
 
 ## 6. Branch Activity (prod & stage — Last 5)
 {activity tables}
 
-## 7. Production Changelog
-{day / week / fortnight / month breakdown}
-
-## 8. Claude Updates
+## 7. Claude Updates
 {updates + suggestions}
 
 ---
@@ -127,11 +124,18 @@ Use the Atlassian MCP tools to fetch top 5 high-priority items for the core team
 
 **Fallback:** If docs not found, skip with a note.
 
-### Section 5: Production Commits (Last 5)
+### Section 5: Production Changelog
 
 1. Run `git log main --oneline --format="%h|%an|%ad|%s" --date=short -5` via Bash.
-2. Present as a table with hash, author, date, summary.
+2. Present the last 5 commits as a table with hash, author, date, summary.
 3. Add a one-line pattern note.
+4. Then for each period (day, week, fortnight, month), run:
+   - `git log main --no-merges --since="{since_value}" --oneline --format="%h|%an|%ad|%s" --date=short`
+5. Present a compact summary per period:
+   - **Last day:** {N} commits — {brief themes}
+   - **Last week:** {N} commits — {brief themes}
+   - **Last fortnight:** {N} commits — {brief themes}
+   - **Last month:** {N} commits — {brief themes}
 
 ### Section 6: Branch Activity (prod & stage — Last 5)
 
@@ -140,19 +144,7 @@ Use the Atlassian MCP tools to fetch top 5 high-priority items for the core team
 2. Present a table per branch.
 3. If a branch doesn't exist, try `origin/{branch}`, or note it's not found.
 
-### Section 7: Production Changelog
-
-Show what updated in prod branch across all time windows:
-
-1. For each period (day, week, fortnight, month), run:
-   - `git log main --no-merges --since="{since_value}" --oneline --format="%h|%an|%ad|%s" --date=short`
-2. Present a compact summary per period:
-   - **Last day:** {N} commits — {brief themes}
-   - **Last week:** {N} commits — {brief themes}
-   - **Last fortnight:** {N} commits — {brief themes}
-   - **Last month:** {N} commits — {brief themes}
-
-### Section 8: Claude Updates
+### Section 7: Claude Updates
 
 1. Use `WebSearch` for "Claude Code changelog" and "Anthropic Claude new features" from the last 7 days.
 2. Summarize top 3-5 updates with impact and workflow suggestions.
@@ -185,7 +177,6 @@ Each section is also available as a standalone command:
 | `/jira-priorities` | Top 5 high-priority Jira tasks (Arjun, Dilip, Roshan) |
 | `/security-audit` | Dependency vulnerability scan |
 | `/arch-check` | Architecture compliance check |
-| `/prod-commits` | Last 5 production commits |
+| `/prod-changelog` | Last 5 prod commits, or changelog by time period |
 | `/branch-activity` | Last 5 commits on prod/stage branches |
-| `/prod-changelog` | What changed in prod (day/week/fortnight/month) |
 | `/claude-updates` | Recent Claude/Claude Code updates |
